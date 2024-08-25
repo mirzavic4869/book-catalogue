@@ -1,10 +1,12 @@
+// src/pages/CategoryPage.js
 import { useState, useEffect } from "react";
 import axios from "axios";
 
 const CategoryPage = () => {
 	const [categories, setCategories] = useState([]);
 	const [name, setName] = useState("");
-	const [editingCategory, setEditingCategory] = useState(null);
+	const [editing, setEditing] = useState(null);
+	const [editName, setEditName] = useState("");
 
 	useEffect(() => {
 		fetchCategories();
@@ -18,30 +20,15 @@ const CategoryPage = () => {
 	const handleAddCategory = async (e) => {
 		e.preventDefault();
 		try {
-			if (editingCategory) {
-				// Update existing category
-				await axios.put(
-					`http://localhost:5000/api/categories/${editingCategory._id}`,
-					{ name },
-					{
-						headers: {
-							"x-auth-token": localStorage.getItem("token"),
-						},
-					}
-				);
-				setEditingCategory(null);
-			} else {
-				// Add new category
-				await axios.post(
-					"http://localhost:5000/api/categories",
-					{ name },
-					{
-						headers: {
-							"x-auth-token": localStorage.getItem("token"),
-						},
-					}
-				);
-			}
+			await axios.post(
+				"http://localhost:5000/api/categories",
+				{ name },
+				{
+					headers: {
+						"x-auth-token": localStorage.getItem("token"),
+					},
+				}
+			);
 			fetchCategories();
 			setName("");
 		} catch (err) {
@@ -49,14 +36,28 @@ const CategoryPage = () => {
 		}
 	};
 
-	const handleEditCategory = (category) => {
-		setName(category.name);
-		setEditingCategory(category);
+	const handleEditCategory = async (id) => {
+		try {
+			await axios.put(
+				`http://localhost:5000/api/categories/${id}`,
+				{ name: editName },
+				{
+					headers: {
+						"x-auth-token": localStorage.getItem("token"),
+					},
+				}
+			);
+			fetchCategories();
+			setEditing(null);
+			setEditName("");
+		} catch (err) {
+			console.error(err);
+		}
 	};
 
-	const handleDeleteCategory = async (categoryId) => {
+	const handleDeleteCategory = async (id) => {
 		try {
-			await axios.delete(`http://localhost:5000/api/categories/${categoryId}`, {
+			await axios.delete(`http://localhost:5000/api/categories/${id}`, {
 				headers: {
 					"x-auth-token": localStorage.getItem("token"),
 				},
@@ -68,29 +69,44 @@ const CategoryPage = () => {
 	};
 
 	return (
-		<div className="container mx-auto p-4">
-			<h2 className="text-3xl text-zinc-800 font-bold text-center mb-8">Categories</h2>
-
-			<form onSubmit={handleAddCategory} className="mb-4">
-				<div className="flex items-center">
-					<input type="text" placeholder="Category Name" value={name} onChange={(e) => setName(e.target.value)} className="w-full p-2 border border-gray-300 rounded mr-2 appearance-none outline-none" />
-					<button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-						{editingCategory ? "Update" : "Add"}
+		<div className="container p-4 mx-auto">
+			<h2 className="mb-8 text-3xl font-bold text-center">Categories</h2>
+			<form onSubmit={handleAddCategory} className="max-w-md p-4 mx-auto mb-8 bg-white rounded shadow-md">
+				<div className="flex flex-col items-center md:flex-row">
+					<input type="text" placeholder="Category Name" value={name} onChange={(e) => setName(e.target.value)} className="w-full p-2 mb-4 border border-gray-300 rounded md:mb-0 md:mr-2" />
+					<button type="submit" className="w-full px-4 py-2 text-white bg-blue-500 rounded md:w-24 hover:bg-blue-600">
+						Add
 					</button>
 				</div>
 			</form>
-
-			<ul className="list-disc list-inside text-zinc-700">
+			<ul className="space-y-2">
 				{categories.map((category) => (
-					<li key={category._id} className="mb-2 p-2 bg-white rounded flex justify-between items-center">
-						<span>{category.name}</span>
-						<div className="flex space-x-2">
-							<button onClick={() => handleEditCategory(category)} className="text-blue-500 hover:text-blue-700">
-								Edit
-							</button>
-							<button onClick={() => handleDeleteCategory(category._id)} className="text-red-500 hover:text-red-700">
-								Delete
-							</button>
+					<li key={category._id} className="flex items-center justify-between p-4 bg-white rounded shadow-md">
+						{editing === category._id ? (
+							<div className="flex flex-col items-center md:flex-row">
+								<input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full p-2 mb-4 border border-gray-300 rounded md:mb-0 md:mr-2" />
+								<button onClick={() => handleEditCategory(category._id)} className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600">
+									Save
+								</button>
+							</div>
+						) : (
+							<div>{category.name}</div>
+						)}
+						<div>
+							{editing === category._id ? (
+								<button onClick={() => setEditing(null)} className="px-4 py-2 text-white bg-gray-500 rounded hover:bg-gray-600">
+									Cancel
+								</button>
+							) : (
+								<>
+									<button onClick={() => setEditing(category._id)} className="px-4 py-2 mr-2 text-white bg-teal-500 rounded hover:bg-teal-600">
+										Edit
+									</button>
+									<button onClick={() => handleDeleteCategory(category._id)} className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+										Delete
+									</button>
+								</>
+							)}
 						</div>
 					</li>
 				))}

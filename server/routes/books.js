@@ -7,16 +7,17 @@ const path = require("path");
 
 const router = express.Router();
 
-const upload = multer({
-	dest: "uploads/", // Folder tempat file akan disimpan
-	limits: { fileSize: 1000000 }, // Maksimal ukuran file 1MB
-	fileFilter(req, file, cb) {
-		if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
-			return cb(new Error("Please upload an image"));
-		}
-		cb(null, true);
+// Konfigurasi multer untuk menyimpan file
+const storage = multer.diskStorage({
+	destination: (req, file, cb) => {
+		cb(null, "uploads/");
+	},
+	filename: (req, file, cb) => {
+		cb(null, Date.now() + path.extname(file.originalname));
 	},
 });
+
+const upload = multer({ storage });
 
 // Create Book
 router.post("/", auth, upload.single("image"), async (req, res) => {
@@ -49,7 +50,7 @@ router.post("/", auth, upload.single("image"), async (req, res) => {
 
 // Get Books with Pagination & Filtering
 router.get("/", async (req, res) => {
-	const { category, page = 1, limit = 10 } = req.query;
+	const { category, page = 1, limit = 9 } = req.query;
 	const query = category ? { category } : {};
 	try {
 		const books = await Book.find(query)

@@ -19,23 +19,23 @@ const LoginPage = () => {
 	};
 
 	return (
-		<div className="flex justify-center items-center h-screen bg-zinc-100 p-4 md:p-0">
-			<div className="bg-white p-8 rounded-md shadow-md w-96">
-				<h2 className="text-2xl font-bold mb-4 text-zinc-800">Login</h2>
+		<div className="flex items-center justify-center h-screen p-4 bg-zinc-100 md:p-0">
+			<div className="p-8 bg-white rounded-md shadow-md w-96">
+				<h2 className="mb-4 text-2xl font-bold text-zinc-800">Login</h2>
 				<form onSubmit={handleSubmit}>
 					<div className="mb-4">
-						<label className="block text-zinc-700 mb-2" htmlFor="email">
+						<label className="block mb-2 text-zinc-700" htmlFor="email">
 							Email
 						</label>
-						<input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-2 border border-zinc-300 rounded appearance-none outline-none" required />
+						<input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-2 border rounded outline-none appearance-none border-zinc-300" required />
 					</div>
 					<div className="mb-4">
-						<label className="block text-zinc-700 mb-2" htmlFor="password">
+						<label className="block mb-2 text-zinc-700" htmlFor="password">
 							Password
 						</label>
-						<input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-2 border border-zinc-300 rounded appearance-none outline-none" required />
+						<input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-2 border rounded outline-none appearance-none border-zinc-300" required />
 					</div>
-					<button type="submit" className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
+					<button type="submit" className="w-full py-2 text-white bg-blue-500 rounded hover:bg-blue-600">
 						Login
 					</button>
 				</form>

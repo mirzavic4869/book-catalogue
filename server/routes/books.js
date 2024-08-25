@@ -67,4 +67,58 @@ router.get("/", async (req, res) => {
 	}
 });
 
+router.put("/:id", auth, upload.single("image"), async (req, res) => {
+	const { id } = req.params;
+	const { title, author, category } = req.body;
+	const image = req.file ? req.file.path : null; // Dapatkan path gambar dari file upload
+
+	try {
+		// Cari buku berdasarkan ID
+		const book = await Book.findById(id);
+		if (!book) {
+			return res.status(404).json({ msg: "Book not found" });
+		}
+
+		// Validasi kategori
+		const cat = await Category.findById(category);
+		if (!cat) {
+			return res.status(400).json({ msg: "Category not found" });
+		}
+
+		// Perbarui buku
+		book.title = title || book.title;
+		book.author = author || book.author;
+		book.category = category || book.category;
+		book.image = image || book.image; // Gambar hanya diperbarui jika ada
+
+		// Simpan perubahan
+		await book.save();
+
+		res.json(book);
+	} catch (err) {
+		console.error("Error:", err.message);
+		res.status(500).json({ msg: "Server error" });
+	}
+});
+
+router.delete("/:id", auth, async (req, res) => {
+	const { id } = req.params;
+
+	try {
+		// Cari buku berdasarkan ID
+		const book = await Book.findById(id);
+		if (!book) {
+			return res.status(404).json({ msg: "Book not found" });
+		}
+
+		// Hapus buku
+		await Book.findByIdAndDelete(id);
+
+		res.json({ msg: "Book deleted successfully" });
+	} catch (err) {
+		console.error("Error:", err.message);
+		res.status(500).json({ msg: "Server error" });
+	}
+});
+
 module.exports = router;
